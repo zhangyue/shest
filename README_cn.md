@@ -1,18 +1,19 @@
 # Shest
 
-Shest is a Bash based, light-weighted shell script test framework.
+Shest是一个基于Bash的轻量级shell script测试框架。
 
-# What does Shest do
-  - Organizes test cases in two tiers - TC (test case) and TP (test purpose, originated from TETware).
-  - Manages test log in a better manner than simply "echo" or "printf".
-  - Generates clear test result summary.
+# Shest做了哪些事情
+  - 将测试用例按照TC（test case）和TP（test purpose，此名词源于TETware测试框架）组织为两层。
+  - 用比原始“echo”、“printf”等方式更合理地管理测试输出和日志。
+  - 生成清晰的测试结果概要。
 
-# System requirement
+# 系统需求
   - Linux box with bash shell and any commands required by the test case functions available.
+  - 带有bash和任何测试用例代码所以来的命令行工具，且可以连通互联网的POSIX系统，如Linux、Mac OS或者装有cygwin、gitbash的Windows系统。
 
-# Run the test
-  - "test_suites/\*.sh" is the entry of the test framework. Obviously, simply run one of "test_suites/\*.sh" to kick off the test.
-  - Real-time test result summary is printed stderr in console:
+# 执行测试
+  - "test_suites/\*.sh"是测试框架的入口。直接执行某一个“test_suites/\*.sh”就可以触发测试执行。
+  - 实时测试结果概要会通过标准错误打印到控制台：
 ```
     [trump@A01-R06-I3-142-H4G9JK2 shest]$ test_suites/shest.sh 
     Test log: /export/users/zhangyue/ws/oss-test/scripts/shest/log/test.log
@@ -41,15 +42,15 @@ Shest is a Bash based, light-weighted shell script test framework.
     1 of 13 failed
     Test log: /export/users/zhangyue/ws/oss-test/scripts/shest/log/test.log
 ```
-  - Detailed log is in $shest_home/log/
+  - 具体的测试日志保存在$shest_home/log/中
 
-# Redefine test scope
-  - Edit "test_suites/shest.sh" to add more TC's with different test parameters, or remove / comment out the "run_tc" lines to exclude some TC's.
-  - Or make a copy of "test_suites/shest.sh" to maintain different test scopes.
+# 定义自己的测试范围
+  - 可以通过编辑“test_suites/shest.sh”来增加更多的测试来覆盖不同的参数，或者删除、注释掉某些“run_tc”语句以将某些测试排除。
+  - 亦可以将“test_suites/shest.sh”拷贝一份，来长期维护不同的测试范围。
 
-# Write test cases
-  - Test cases are maintained in "tc/\*.sh" by default. You can create your own test case scripts and source them in test_suites/shest.sh (or any other scripts created based on shest.sh), after sourcing lib/lib_shest.sh, where the test framework functions are maintained.
-  - Test cases are organized as described in the chart below:
+# 开发测试用例
+  - 默认情况下，测试用例代码在“tc/\*.sh”中维护。需要在test_suites/shest.sh（或其它派生于shest.sh的脚本）中source需要的测试代码脚本。注意，source tc/*.sh的语句一定要在source lib/lib_shest.sh语句之后，因为测试框架的一些关键函数时在lib/lib_shest.sh中定义的。
+  - 测试用例函数按照如下图描述的层级组织：
 ```
         tc1 param1
           |- tp1
@@ -69,7 +70,7 @@ Shest is a Bash based, light-weighted shell script test framework.
           |- tp2 ...
           ....
 ```
-  - TC's are called with "run_tc" function and usually defined in "testcase.sh" or equivalent files:
+  - 测试用例函数通常在“testcase.sh”或类似的脚本中维护，并通过“run_tc”函数被调用。
 ```
 testcase.sh:
     run_tc <tc_function1> <tc_param11> <tc_param12> ...
@@ -77,7 +78,7 @@ testcase.sh:
     run_tc <tc_function2> <tc_param11> <tc_param12> ...
     run_tc <tc_function2> <tc_param21> <tc_param22> ...
 ```
-  - TP's are called within TC functions with "run_tp" function:
+  - TP（子测试用例）函数是在TC（测试用例）函数中通过“run_tp”函数被调用：
 ```
 testcase.sh:
     function tc1 {
@@ -91,13 +92,13 @@ testcase.sh:
         run_tp <tp_function2> $tp_param1 $tp_param22
     }
 ```
-  - Use the log functions provided by the test framework:
+  - 测试框架提供了以下日志函数：
 ```
-    log_info "Test step 1 - Open the ice box"                  # Print INFO level log.
-    log_eval "ping -c1 epower.zoo.com"                         # Run the command and log the command and its output.
-    log_warn "Test step 2 - Put the elephant into the ice box" # Print WARN level log.
-    log_error "The ice box explodes"                           # Print ERROR level log.
-    log_ "<this is a chart>"                                   # Print the message into log without any logging stamps.
-    console_info "TC1 summary: $nfailed / $ntotal failed"      # Print the message into console.
+    log_info "Test step 1 - Open the ice box"                  # 打印INFO级别日志
+    log_eval "ping -c1 epower.zoo.com"                         # 执行命令并将命令和它的输出打印到日志中
+    log_warn "Test step 2 - Put the elephant into the ice box" # 打印WARN级别日志
+    log_error "The ice box explodes"                           # 打印ERROR级别日志
+    log_ "<this is a chart>"                                   # 打印裸输出到日志中（不带任何时间戳或日志级别信息）
+    console_info "TC1 summary: $nfailed / $ntotal failed"      # 打印信息到控制台中
 ```
 
